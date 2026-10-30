@@ -1,0 +1,42 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+/* TFC green and harvest gold, the same as the Kilimo (Mbolea) system */
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    --color-brand-50: #effaf2;
+    --color-brand-100: #d8f3df;
+    --color-brand-200: #b3e6c3;
+    --color-brand-300: #7fd19f;
+    --color-brand-400: #48b577;
+    --color-brand-500: #26995a;
+    --color-brand-600: #187b47;
+    --color-brand-700: #14623b;
+    --color-brand-800: #134e31;
+    --color-brand-900: #10402a;
+    --color-brand-950: #072416;
+    --color-harvest-300: #f8cf72;
+    --color-harvest-400: #f5b83d;
+    --color-harvest-500: #e89f17;
+}
+
+@utility btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+    @apply btn bg-brand-600 text-white shadow-sm hover:bg-brand-700;
+}
+@utility btn-light {
+    @apply btn bg-white text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50;
+}
+@utility field {
+    @apply block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm ring-1 ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 focus:outline-none;
+}
+@utility label {
+    @apply mb-1 block text-sm font-medium text-slate-700;
+}
+@utility card {
+    @apply rounded-2xl bg-white shadow-sm ring-1 ring-slate-200;
+}
