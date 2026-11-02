@@ -21,9 +21,27 @@
             </a>
             <nav class="ml-auto flex flex-wrap items-center gap-1 text-sm">
                 <a href="{{ route('home') }}" class="rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('home') ? 'bg-brand-800' : '' }}">Systems</a>
-                @if (auth()->user()->hasAbility('dashboard'))
-                    <a href="{{ route('dashboard') }}" class="rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs(['dashboard', 'warehouses.*', 'stock*', 'shipments.*', 'dispatches.*', 'transporters.*', 'sales.*', 'farmers.*', 'cooperatives.*', 'vouchers.*', 'reservations.*', 'dealers.*', 'complaints.*', 'advisories.*', 'sms.*', 'planning.*', 'reports.*', 'map', 'map.*']) ? 'bg-brand-800' : '' }}">Kilimo</a>
-                @endif
+                @php
+                    // Support: the open requests; everyone else: their requests waiting for them (an answer, or "does it work now?")
+                    $helpdeskWaiting = auth()->user()->isSupport()
+                        ? \App\Models\HelpdeskTicket::query()->whereIn('status', ['open', 'in_progress'])->count()
+                        : \App\Models\HelpdeskTicket::query()->where('user_id', auth()->id())->whereIn('status', ['waiting', 'resolved'])->count();
+                @endphp
+                <a href="{{ route('helpdesk.index') }}" class="flex items-center gap-1.5 rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('helpdesk.*') ? 'bg-brand-800' : '' }}">Helpdesk
+                    @if ($helpdeskWaiting)<span class="rounded-full bg-harvest-400 px-1.5 text-xs font-bold text-brand-950">{{ $helpdeskWaiting }}</span>@endif</a>
+                @php
+                    // Uwajibikaji: my tasks still to do, work handed in for me to approve, explanations for me to decide, my missed deadlines to explain
+                    $me = auth()->user();
+                    $dutyWaiting = \App\Models\DutyTask::query()->where('assigned_to', $me->id)->whereIn('status', \App\Models\DutyTask::TO_DO)->count()
+                        + \App\Models\DutyTask::query()->where('assigned_by', $me->id)->where('status', 'submitted')->count()
+                        + \App\Models\DutyWarning::query()->where('status', 'review')->whereHas('task', fn ($q) => $q->where('assigned_by', $me->id))->count()
+                        + \App\Models\DutyWarning::query()->where('user_id', $me->id)->where('status', 'explain')->count();
+                    $dutyLock = \App\Models\DutyWarning::lockFor($me);
+                    $dutySoon = \App\Models\DutyTask::query()->where('assigned_to', $me->id)->whereIn('status', \App\Models\DutyTask::TO_DO)
+                        ->whereBetween('due_at', [now(), now()->addDay()])->orderBy('due_at')->limit(3)->get();
+                @endphp
+                <a href="{{ route('duty.index') }}" class="flex items-center gap-1.5 rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('duty.*') ? 'bg-brand-800' : '' }}">Uwajibikaji
+                    @if ($dutyWaiting)<span class="rounded-full bg-harvest-400 px-1.5 text-xs font-bold text-brand-950">{{ $dutyWaiting }}</span>@endif</a>
                 @can('admin')
                     <a href="{{ route('admin.users.index') }}" class="rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('admin.users.*') ? 'bg-brand-800' : '' }}">People &amp; access</a>
                     <a href="{{ route('admin.activity') }}" class="rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('admin.activity') ? 'bg-brand-800' : '' }}">Activity</a>
@@ -39,6 +57,17 @@
 @endauth
 
 <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    @auth
+        {{-- Uwajibikaji reminders, on every page --}}
+        @if ($dutyLock && ! request()->routeIs('duty.index'))
+            <a href="{{ route('duty.index') }}" class="mb-4 block rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800 ring-1 ring-red-200">
+                <span class="font-semibold">Uwajibikaji:</span> {{ $dutyLock === 'five' ? 'you have '.\App\Models\DutyWarning::MAX.' warnings — only the administrator can clear them.' : 'you missed a deadline. Explain why before you can work there again →' }}</a>
+        @endif
+        @foreach ($dutySoon as $soon)
+            <a href="{{ route('duty.show', $soon) }}" class="mb-4 block rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
+                <span class="font-semibold">Reminder:</span> “{{ $soon->title }}” for {{ $soon->giver?->name }} is due {{ $soon->dueLabel() }} — in {{ $soon->due_at->diffForHumans(null, true) }}.</a>
+        @endforeach
+    @endauth
     @if (session('status'))
         <p class="mb-6 rounded-lg bg-brand-50 px-4 py-3 text-sm text-brand-800 ring-1 ring-brand-200">{{ session('status') }}</p>
     @endif

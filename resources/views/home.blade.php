@@ -7,7 +7,6 @@
         $icons = [
             'meeting' => 'M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm3 10h2m4 0h2m-8 4h2',
             'protocol' => 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm0 0v6h6M8 13h8M8 17h5',
-            'kilimo' => 'M12 22V12m0 0C12 7 8 4 3 4c0 5 4 8 9 8Zm0 0c0-5 4-8 9-8 0 5-4 8-9 8Zm-6 10h12',
         ];
     @endphp
 
@@ -42,5 +41,34 @@
                 @endif
             </article>
         @endforeach
+
+        {{-- TFC Helpdesk: part of the portal itself, for everyone --}}
+        <article class="card flex flex-col p-6">
+            <div class="flex items-start justify-between">
+                <span class="grid size-12 place-items-center rounded-xl bg-brand-600 text-white">
+                    <svg class="size-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18v-6a9 9 0 0 1 18 0v6M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+                </span>
+                <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">Access</span>
+            </div>
+            <h2 class="mt-5 text-xl font-bold text-slate-900">TFC Helpdesk</h2>
+            <p class="mt-2 flex-1 text-sm leading-relaxed text-slate-500">Printer, computer, internet, email or a system not working? Ask support for help and follow your request until it is fixed.</p>
+            <a href="{{ route('helpdesk.create') }}" class="btn-primary mt-4 w-full py-2.5">Ask for help →</a>
+            <a href="{{ route('helpdesk.index') }}" class="btn-light mt-2 w-full py-2">{{ auth()->user()->isSupport() ? 'All requests' : 'My requests' }}</a>
+        </article>
+
+        {{-- Uwajibikaji: part of the portal itself, for everyone --}}
+        @php($myDuties = \App\Models\DutyTask::query()->where('assigned_to', auth()->id())->whereIn('status', \App\Models\DutyTask::TO_DO)->count())
+        <article class="card flex flex-col p-6">
+            <div class="flex items-start justify-between">
+                <span class="grid size-12 place-items-center rounded-xl bg-brand-600 text-white">
+                    <svg class="size-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>
+                </span>
+                @if ($myDuties)<span class="rounded-full bg-harvest-300 px-2.5 py-1 text-xs font-semibold text-brand-950">{{ $myDuties }} to do</span>@else<span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">Access</span>@endif
+            </div>
+            <h2 class="mt-5 text-xl font-bold text-slate-900">Uwajibikaji</h2>
+            <p class="mt-2 flex-1 text-sm leading-relaxed text-slate-500">Give a task with a deadline and follow it until it is done. A missed deadline is a warning: explain why, or at {{ \App\Models\DutyWarning::MAX }} warnings you can no longer explain.</p>
+            <a href="{{ route('duty.index') }}" class="btn-primary mt-4 w-full py-2.5">My tasks →</a>
+            <a href="{{ route('duty.create') }}" class="btn-light mt-2 w-full py-2">Give a task</a>
+        </article>
     </div>
 @endsection

@@ -1,0 +1,3 @@
+@php($colours = ['open' => 'bg-amber-100 text-amber-800', 'in_progress' => 'bg-sky-100 text-sky-800', 'waiting' => 'bg-violet-100 text-violet-800', 'resolved' => 'bg-brand-100 text-brand-800', 'closed' => 'bg-slate-100 text-slate-600'])
+<span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $colours[$ticket->status] ?? 'bg-slate-100 text-slate-600' }}">{{ \App\Models\HelpdeskTicket::STATUSES[$ticket->status] ?? $ticket->status }}</span>
+@if ($ticket->priority === 'urgent' && $ticket->isOpen())<span class="ml-1 inline-flex rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700">Urgent</span>@endif

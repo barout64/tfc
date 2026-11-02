@@ -31,6 +31,7 @@
                         <td class="px-4 py-3">
                             <p class="font-semibold {{ $u->is_active ? 'text-slate-900' : '' }}">{{ $u->name }}
                                 @if ($u->is_admin)<span class="ml-1 rounded bg-harvest-300/40 px-1.5 py-0.5 text-[11px] font-semibold text-amber-800">Admin</span>@endif
+                                @if ($u->is_support)<span class="ml-1 rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-semibold text-sky-800">Helpdesk support</span>@endif
                                 @unless ($u->is_active)<span class="ml-1 rounded bg-slate-200 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600">Off</span>@endunless
                             </p>
                             <p class="text-xs text-slate-500">{{ $u->email }}</p>

@@ -35,6 +35,7 @@
                 <div class="mt-5 flex flex-wrap gap-6 text-sm">
                     <label class="flex items-center gap-2"><input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $user->is_active ?? true)) class="rounded border-slate-300 text-brand-600"> Can sign in</label>
                     <label class="flex items-center gap-2"><input type="hidden" name="is_admin" value="0"><input type="checkbox" name="is_admin" value="1" @checked(old('is_admin', $user->is_admin)) class="rounded border-slate-300 text-brand-600"> TFC administrator (adds people and gives access)</label>
+                    <label class="flex items-center gap-2"><input type="hidden" name="is_support" value="0"><input type="checkbox" name="is_support" value="1" @checked(old('is_support', $user->is_support)) class="rounded border-slate-300 text-brand-600"> Helpdesk support (receives and fixes staff requests for help)</label>
                 </div>
                 @error('is_admin')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
             </section>

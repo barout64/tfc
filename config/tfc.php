@@ -5,9 +5,7 @@
 | with its own key (the same key is in that system's settings). The portal only reads each system's
 | user list, to link a TFC person to their account there; it never writes to those systems.
 |
-| Kilimo is no longer here: its features are native to this app now (see the /kilimo routes and the
-| merged Role/ability system), so there is nothing left to redirect to. Meeting and Protocol are
-| still separate deployments until their own phases land the same way.
+| Kilimo is not part of the TFC Portal (it runs on its own, at kilimo.bosscreativegroup.com).
 |
 | default_access: true means every active TFC person is given access automatically (an account is
 | created for them there the first time they're saved, via that system's own key-authenticated

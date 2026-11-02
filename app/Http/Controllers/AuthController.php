@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\Role;
 use App\Models\Activity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,21 +32,7 @@ class AuthController extends Controller
         $request->user()->forceFill(['last_login_at' => now()])->save();
         Activity::record('signed_in');
 
-        return redirect()->intended(route('landing'));
-    }
-
-    /**
-     * Where a freshly signed-in person lands: their own portal if Kilimo gave them a
-     * dealer/transporter role, otherwise the main TFC hub. Each later module (Meeting,
-     * Protocol) extends this same match as it gets its own native, role-scoped landing page.
-     */
-    public function landing(Request $request): RedirectResponse
-    {
-        return match ($request->user()->role) {
-            Role::AgroDealer => redirect()->route('dealer.home'),
-            Role::Transporter => redirect()->route('transporter.home'),
-            default => redirect()->route('home'),
-        };
+        return redirect()->intended(route('home'));
     }
 
     public function destroy(Request $request): RedirectResponse

@@ -22,11 +22,10 @@
         </div>
         <div class="relative my-auto max-w-md">
             <h1 class="text-4xl leading-tight font-extrabold">One sign-in for every TFC system.</h1>
-            <p class="mt-4 text-brand-100">Sign in once, then open the system you need: meetings, official correspondence or fertilizer distribution.</p>
+            <p class="mt-4 text-brand-100">Sign in once, then open the system you need: meetings or official correspondence.</p>
             <ul class="mt-8 space-y-3 text-sm text-brand-50">
                 <li class="flex items-center gap-3"><span class="size-2 rounded-full bg-harvest-400"></span>TFC Meetings</li>
                 <li class="flex items-center gap-3"><span class="size-2 rounded-full bg-harvest-400"></span>TFC Protocol</li>
-                <li class="flex items-center gap-3"><span class="size-2 rounded-full bg-harvest-400"></span>TFC Kilimo</li>
             </ul>
         </div>
     </section>

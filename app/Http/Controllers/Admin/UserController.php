@@ -62,7 +62,7 @@ class UserController extends Controller
 
     private function form(User $user): View
     {
-        // Only systems an administrator assigns by hand (e.g. Kilimo) need a picker; the rest are automatic.
+        // Only systems an administrator assigns by hand need a picker; the rest are automatic.
         $assigned = collect($this->systems->all())->reject(fn ($s, $key) => $this->systems->defaultAccess($key));
 
         return view('admin.users.form', [
@@ -81,6 +81,7 @@ class UserController extends Controller
             'password' => [$user->exists ? 'nullable' : 'required', 'confirmed', Password::min(8)],
             'is_admin' => ['boolean'],
             'is_active' => ['boolean'],
+            'is_support' => ['boolean'],
             'links' => ['array'],
             'links.*' => ['nullable', 'string', 'max:100'],
         ]);
@@ -123,13 +124,14 @@ class UserController extends Controller
                 'email' => strtolower($data['email']),
                 'is_admin' => $request->boolean('is_admin'),
                 'is_active' => $request->boolean('is_active'),
+                'is_support' => $request->boolean('is_support'),
             ]);
             if (filled($data['password'] ?? null)) {
                 $user->password = $data['password'];
             }
             $user->save();
 
-            // Assigned systems (e.g. Kilimo): exactly what the administrator chose just now.
+            // Assigned systems: exactly what the administrator chose just now.
             foreach ($this->systems->all() as $key => $s) {
                 if ($this->systems->defaultAccess($key)) {
                     continue;
