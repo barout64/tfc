@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\Station;
 use App\Models\User;
 use App\Services\Systems;
 use Illuminate\Http\RedirectResponse;
@@ -70,6 +71,7 @@ class UserController extends Controller
             'systems' => $this->systems->all(),
             'assignedSystems' => $assigned,
             'lists' => $assigned->map(fn ($s, $key) => $this->systems->usersOrError($key)),
+            'stations' => Station::query()->where('is_active', true)->orderBy('name')->get(),
         ]);
     }
 
@@ -82,6 +84,7 @@ class UserController extends Controller
             'is_admin' => ['boolean'],
             'is_active' => ['boolean'],
             'is_support' => ['boolean'],
+            'station_id' => ['nullable', 'integer', Rule::exists('stations', 'id')],
             'links' => ['array'],
             'links.*' => ['nullable', 'string', 'max:100'],
         ]);
@@ -125,6 +128,7 @@ class UserController extends Controller
                 'is_admin' => $request->boolean('is_admin'),
                 'is_active' => $request->boolean('is_active'),
                 'is_support' => $request->boolean('is_support'),
+                'station_id' => $data['station_id'] ?? null,
             ]);
             if (filled($data['password'] ?? null)) {
                 $user->password = $data['password'];

@@ -38,6 +38,18 @@
                     <label class="flex items-center gap-2"><input type="hidden" name="is_support" value="0"><input type="checkbox" name="is_support" value="1" @checked(old('is_support', $user->is_support)) class="rounded border-slate-300 text-brand-600"> Helpdesk support (receives and fixes staff requests for help)</label>
                 </div>
                 @error('is_admin')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
+
+                <div class="mt-5 max-w-sm">
+                    <label class="label" for="station_id">Daily Report: station (kituo)</label>
+                    <select class="field" id="station_id" name="station_id">
+                        <option value="">Not tied to a station</option>
+                        @foreach ($stations as $st)
+                            <option value="{{ $st->id }}" @selected((string) old('station_id', $user->station_id) === (string) $st->id)>{{ $st->name }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-slate-400">Lets this person submit the daily sales report for that station. Administrators can submit for any station regardless.</p>
+                    @error('station_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                </div>
             </section>
 
             <section class="card p-6">

@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityController;
+use App\Http\Controllers\Admin\StationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DailyReportController;
 use App\Http\Controllers\DutyController;
 use App\Http\Controllers\HelpdeskController;
 use App\Http\Controllers\PortalController;
@@ -13,8 +15,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'store'])->middleware('throttle:6,1');
 });
 
+// Public welcome page when signed out; the real dashboard when signed in — one route, decided in the controller.
+Route::get('/', [PortalController::class, 'index'])->name('home');
+
 Route::middleware('auth')->group(function () {
-    Route::get('/', [PortalController::class, 'index'])->name('home');
     Route::redirect('/dashboard', '/');   // old bookmarks
     Route::redirect('/home', '/');
     Route::get('/open/{system}', [PortalController::class, 'open'])->name('open')->middleware('throttle:30,1');
@@ -56,8 +60,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/{task}/cancel', [DutyController::class, 'cancel'])->name('cancel');
     });
 
+    // Daily Report (Taarifa ya Mauzo ya Kila Siku): each station reports what it sold each day
+    Route::middleware('can:reports')->prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [DailyReportController::class, 'index'])->name('index');
+        Route::get('/new', [DailyReportController::class, 'create'])->name('create');
+        Route::post('/', [DailyReportController::class, 'store'])->middleware('throttle:30,1')->name('store');
+        Route::get('/{dailyReport}', [DailyReportController::class, 'show'])->name('show');
+    });
+
     Route::middleware('can:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class)->except(['show', 'destroy']);
+        Route::resource('stations', StationController::class)->except(['show', 'destroy']);
         Route::get('/activity', ActivityController::class)->name('activity');
     });
 });

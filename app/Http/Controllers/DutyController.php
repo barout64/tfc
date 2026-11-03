@@ -349,7 +349,7 @@ class DutyController extends Controller
         $lock = DutyWarning::lockFor($me);
         if ($lock) {
             throw new HttpResponseException(redirect()->route('duty.index')->with('error', $lock === 'five'
-                ? 'You have '.DutyWarning::MAX.' warnings: you cannot work in Uwajibikaji until the administrator clears them.'
+                ? 'You have '.DutyWarning::MAX.' warnings: you cannot work in Uwajibikaji/Tasks until the administrator clears them.'
                 : 'You missed a deadline. Explain why first — then you can work again.'));
         }
     }

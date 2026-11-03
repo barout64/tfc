@@ -40,10 +40,21 @@
                     $dutySoon = \App\Models\DutyTask::query()->where('assigned_to', $me->id)->whereIn('status', \App\Models\DutyTask::TO_DO)
                         ->whereBetween('due_at', [now(), now()->addDay()])->orderBy('due_at')->limit(3)->get();
                 @endphp
-                <a href="{{ route('duty.index') }}" class="flex items-center gap-1.5 rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('duty.*') ? 'bg-brand-800' : '' }}">Uwajibikaji
+                <a href="{{ route('duty.index') }}" class="flex items-center gap-1.5 rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('duty.*') ? 'bg-brand-800' : '' }}">Uwajibikaji/Tasks
                     @if ($dutyWaiting)<span class="rounded-full bg-harvest-400 px-1.5 text-xs font-bold text-brand-950">{{ $dutyWaiting }}</span>@endif</a>
+                @can('reports')
+                    @php
+                        // Admin: how many stations have not reported today; a station's own person: whether today is still missing
+                        $reportsWaiting = $me->is_admin
+                            ? \App\Models\Station::query()->where('is_active', true)->whereDoesntHave('dailyReports', fn ($q) => $q->whereDate('report_date', now()->toDateString()))->count()
+                            : ($me->station_id && ! \App\Models\DailyReport::query()->where('station_id', $me->station_id)->whereDate('report_date', now()->toDateString())->exists() ? 1 : 0);
+                    @endphp
+                    <a href="{{ route('reports.index') }}" class="flex items-center gap-1.5 rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('reports.*') ? 'bg-brand-800' : '' }}">Daily Report
+                        @if ($reportsWaiting)<span class="rounded-full bg-harvest-400 px-1.5 text-xs font-bold text-brand-950">{{ $reportsWaiting }}</span>@endif</a>
+                @endcan
                 @can('admin')
                     <a href="{{ route('admin.users.index') }}" class="rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('admin.users.*') ? 'bg-brand-800' : '' }}">People &amp; access</a>
+                    <a href="{{ route('admin.stations.index') }}" class="rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('admin.stations.*') ? 'bg-brand-800' : '' }}">Stations</a>
                     <a href="{{ route('admin.activity') }}" class="rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('admin.activity') ? 'bg-brand-800' : '' }}">Activity</a>
                 @endcan
                 <a href="{{ route('password.edit') }}" class="rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('password.*') ? 'bg-brand-800' : '' }}">Password</a>
@@ -61,7 +72,7 @@
         {{-- Uwajibikaji reminders, on every page --}}
         @if ($dutyLock && ! request()->routeIs('duty.index'))
             <a href="{{ route('duty.index') }}" class="mb-4 block rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800 ring-1 ring-red-200">
-                <span class="font-semibold">Uwajibikaji:</span> {{ $dutyLock === 'five' ? 'you have '.\App\Models\DutyWarning::MAX.' warnings — only the administrator can clear them.' : 'you missed a deadline. Explain why before you can work there again →' }}</a>
+                <span class="font-semibold">Uwajibikaji/Tasks:</span> {{ $dutyLock === 'five' ? 'you have '.\App\Models\DutyWarning::MAX.' warnings — only the administrator can clear them.' : 'you missed a deadline. Explain why before you can work there again →' }}</a>
         @endif
         @foreach ($dutySoon as $soon)
             <a href="{{ route('duty.show', $soon) }}" class="mb-4 block rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200">

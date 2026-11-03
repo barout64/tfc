@@ -4,7 +4,7 @@
     @php($tz = \App\Models\DutyTask::TZ)
     @php($max = \App\Models\DutyWarning::MAX)
     <div class="mx-auto max-w-5xl">
-        <a href="{{ route('duty.index') }}" class="text-sm text-slate-500 hover:text-slate-700">← Uwajibikaji</a>
+        <a href="{{ route('duty.index') }}" class="text-sm text-slate-500 hover:text-slate-700">← Uwajibikaji/Tasks</a>
         <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
             <div>
                 <p class="text-sm font-semibold text-slate-400">{{ $task->number() }} · {{ $task->giver?->name }} → {{ $task->assignee?->name }}</p>
@@ -17,7 +17,7 @@
         @if ($lock === 'five')
             <p class="mt-5 rounded-xl bg-red-50 px-5 py-4 text-sm text-red-900 ring-1 ring-red-200"><span class="font-semibold">You have {{ $warningCount }} warnings.</span> You cannot hand in work here until the administrator clears them.</p>
         @elseif ($lock === 'explain')
-            <p class="mt-5 rounded-xl bg-red-50 px-5 py-4 text-sm text-red-900 ring-1 ring-red-200"><span class="font-semibold">You missed a deadline.</span> Explain why (below, or on the <a href="{{ route('duty.index') }}" class="underline">Uwajibikaji page</a>) — then you can work again.</p>
+            <p class="mt-5 rounded-xl bg-red-50 px-5 py-4 text-sm text-red-900 ring-1 ring-red-200"><span class="font-semibold">You missed a deadline.</span> Explain why (below, or on the <a href="{{ route('duty.index') }}" class="underline">Uwajibikaji/Tasks page</a>) — then you can work again.</p>
         @elseif ($doer && $task->status === 'returned')
             <p class="mt-5 rounded-xl bg-rose-50 px-5 py-4 text-sm text-rose-900 ring-1 ring-rose-200"><span class="font-semibold">{{ $task->giver?->name }} sent this back.</span> See what must change below, then hand it in again.</p>
         @elseif ($leader && $task->status === 'submitted')

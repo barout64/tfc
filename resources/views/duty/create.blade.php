@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="mx-auto max-w-2xl">
-        <a href="{{ route('duty.index') }}" class="text-sm text-slate-500 hover:text-slate-700">← Uwajibikaji</a>
+        <a href="{{ route('duty.index') }}" class="text-sm text-slate-500 hover:text-slate-700">← Uwajibikaji/Tasks</a>
         <h1 class="mt-2 text-2xl font-bold text-slate-900">Give a task</h1>
         <p class="mt-1 text-sm text-slate-500">The person sees it straight away. If the deadline passes without the work, they get a warning and must explain why.</p>
 

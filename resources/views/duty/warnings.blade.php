@@ -3,7 +3,7 @@
 @section('content')
     @php($tz = \App\Models\DutyTask::TZ)
     @php($max = \App\Models\DutyWarning::MAX)
-    <a href="{{ route('duty.index') }}" class="text-sm text-slate-500 hover:text-slate-700">← Uwajibikaji</a>
+    <a href="{{ route('duty.index') }}" class="text-sm text-slate-500 hover:text-slate-700">← Uwajibikaji/Tasks</a>
     <h1 class="mt-2 text-2xl font-bold text-slate-900">Warnings</h1>
     <p class="mt-1 text-sm text-slate-500">Each missed deadline is a warning. The one who gave the task can strike it off after your explanation. At {{ $max }} you can no longer explain; only the administrator can clear warnings.</p>
 

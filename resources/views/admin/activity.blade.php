@@ -4,9 +4,9 @@
     @php($labels = ['signed_in' => 'Signed in to the portal', 'opened' => 'Opened', 'changed_password' => 'Changed their password', 'added_person' => 'Added', 'changed_person' => 'Changed access of',
         'helpdesk_asked' => 'Asked the helpdesk:', 'helpdesk_taken' => 'Helpdesk: took', 'helpdesk_in_progress' => 'Helpdesk: working on', 'helpdesk_waiting' => 'Helpdesk: waiting for an answer on',
         'helpdesk_resolved' => 'Helpdesk: fixed', 'helpdesk_closed' => 'Helpdesk: confirmed fixed', 'helpdesk_reopened' => 'Helpdesk: opened again',
-        'duty_assigned' => 'Uwajibikaji: gave', 'duty_on_it' => 'Uwajibikaji: on it —', 'duty_stuck' => 'Uwajibikaji: needs help with', 'duty_submitted' => 'Uwajibikaji: handed in',
-        'duty_approved' => 'Uwajibikaji: approved', 'duty_returned' => 'Uwajibikaji: sent back', 'duty_deadline' => 'Uwajibikaji: new deadline', 'duty_cancelled' => 'Uwajibikaji: cancelled',
-        'duty_explained' => 'Uwajibikaji: explained a missed deadline —', 'duty_decided' => 'Uwajibikaji: decided on an explanation —', 'duty_cleared' => 'Uwajibikaji: cleared'])
+        'duty_assigned' => 'Uwajibikaji/Tasks: gave', 'duty_on_it' => 'Uwajibikaji/Tasks: on it —', 'duty_stuck' => 'Uwajibikaji/Tasks: needs help with', 'duty_submitted' => 'Uwajibikaji/Tasks: handed in',
+        'duty_approved' => 'Uwajibikaji/Tasks: approved', 'duty_returned' => 'Uwajibikaji/Tasks: sent back', 'duty_deadline' => 'Uwajibikaji/Tasks: new deadline', 'duty_cancelled' => 'Uwajibikaji/Tasks: cancelled',
+        'duty_explained' => 'Uwajibikaji/Tasks: explained a missed deadline —', 'duty_decided' => 'Uwajibikaji/Tasks: decided on an explanation —', 'duty_cleared' => 'Uwajibikaji/Tasks: cleared'])
     <h1 class="text-2xl font-bold text-slate-900">Activity</h1>
     <p class="mt-1 text-sm text-slate-500">Who signed in, which systems they opened, and changes to people's access.</p>
 

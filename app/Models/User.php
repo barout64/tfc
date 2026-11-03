@@ -6,12 +6,13 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /** A TFC person: one login for the portal; the systems they may open are their links. */
-#[Fillable(['name', 'email', 'password', 'is_admin', 'is_active', 'is_support'])]
+#[Fillable(['name', 'email', 'password', 'is_admin', 'is_active', 'is_support', 'station_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -55,5 +56,17 @@ class User extends Authenticatable
     public function isSupport(): bool
     {
         return $this->is_active && ($this->is_support || $this->is_admin);
+    }
+
+    /** Daily Report: the kituo (station) this person reports for, if any. */
+    public function station(): BelongsTo
+    {
+        return $this->belongsTo(Station::class);
+    }
+
+    /** Daily Report: tied to a station, or an administrator who may report for any station. */
+    public function isReporter(): bool
+    {
+        return $this->is_active && ($this->station_id !== null || $this->is_admin);
     }
 }

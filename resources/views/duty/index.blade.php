@@ -1,9 +1,9 @@
-@extends('layouts.app', ['title' => 'Uwajibikaji'])
+@extends('layouts.app', ['title' => 'Uwajibikaji/Tasks'])
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-            <p class="text-sm font-semibold tracking-wide text-brand-600 uppercase">Uwajibikaji</p>
+            <p class="text-sm font-semibold tracking-wide text-brand-600 uppercase">Uwajibikaji/Tasks</p>
             <h1 class="mt-1 text-2xl font-bold text-slate-900">Tasks and deadlines</h1>
             <p class="mt-1 text-sm text-slate-500">Give anyone a task with a deadline, and follow it until it is done. A missed deadline is a warning; at {{ \App\Models\DutyWarning::MAX }} warnings the person can no longer explain.</p>
         </div>
