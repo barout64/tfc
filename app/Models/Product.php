@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/** A product that a station may report selling (from the TFC Kilimo product list). */
+/** A product that a station may report selling (TFC's fertilizer products). */
 class Product extends Model
 {
     protected $guarded = ['id'];

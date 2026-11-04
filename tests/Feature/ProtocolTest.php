@@ -208,7 +208,7 @@ class ProtocolTest extends TestCase
         $this->actingAs($admin)->postJson('/protocol/api/departments', ['name' => 'Other', 'code' => 'LEG'])->assertStatus(400);
         $this->actingAs($admin)->putJson("/protocol/api/departments/{$dep}", ['name' => 'Legal Office', 'code' => 'LEG'])->assertOk();
         $this->actingAs($admin)->putJson('/protocol/api/settings', ['refFormat' => 'NO-NUMBER'])->assertStatus(400);
-        $this->actingAs($admin)->putJson('/protocol/api/settings', ['motto' => 'Kilimo'])->assertOk()->assertJsonPath('motto', 'Kilimo');
+        $this->actingAs($admin)->putJson('/protocol/api/settings', ['motto' => 'Serving farmers'])->assertOk()->assertJsonPath('motto', 'Serving farmers');
         $this->actingAs($this->worker)->putJson('/protocol/api/settings', ['motto' => 'x'])->assertForbidden();
 
         // Changing the password is the one password

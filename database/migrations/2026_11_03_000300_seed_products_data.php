@@ -7,7 +7,7 @@ return new class extends Migration
 {
     /**
      * The previous migration's product rows silently failed to insert: the "products" table already existed
-     * on this database, left over from an earlier, since-reverted attempt to merge TFC Kilimo in — and that
+     * on this database, left over from an earlier, since-reverted merge — and that
      * table requires a "category" column this app does not otherwise use. This seeds the real products,
      * satisfying that column, without touching the table's structure.
      */

@@ -8,9 +8,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * A simple product catalogue for the Daily Report form, and the real TFC stations and products —
-     * taken from the TFC Kilimo system (its warehouses and fertilizer products), so Daily Report starts
-     * with the real list instead of an empty one.
+     * A simple product catalogue for the Daily Report form, and the real TFC stations and products,
+     * so Daily Report starts with the real list instead of an empty one.
      */
     public function up(): void
     {

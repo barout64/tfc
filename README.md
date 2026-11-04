@@ -40,5 +40,3 @@ Run the tests with `php artisan test`. They use an in-memory database.
 ## Bringing in the old separate systems
 
 Meetings and Protocol used to run as separate applications. `php artisan tfc:import-old-systems` copies their data into this system once and only reads from them. Add `--fresh` to replace what was copied with a new copy. New installations do not need it.
-
-An earlier Kilimo merge, since removed, left unused tables on the live database. This code does not use them.
