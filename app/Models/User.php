@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-/** A TFC person: one login for the portal; the systems they may open are their links. */
-#[Fillable(['name', 'email', 'password', 'is_admin', 'is_active', 'is_support', 'station_id'])]
+/** A TFC person: one login for the whole TFC system. */
+#[Fillable(['name', 'email', 'password', 'is_admin', 'is_active', 'is_support', 'station_id', 'department_id', 'job_title', 'meeting_role', 'protocol_role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -36,16 +36,6 @@ class User extends Authenticatable
         ];
     }
 
-    public function links(): HasMany
-    {
-        return $this->hasMany(SystemLink::class);
-    }
-
-    public function linkTo(string $system): ?SystemLink
-    {
-        return $this->links->firstWhere('system', $system);
-    }
-
     /** Uwajibikaji: the deadlines this person missed. */
     public function dutyWarnings(): HasMany
     {
@@ -62,6 +52,28 @@ class User extends Authenticatable
     public function station(): BelongsTo
     {
         return $this->belongsTo(Station::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function departmentName(): ?string
+    {
+        return $this->department?->name;
+    }
+
+    /** TFC Meetings: admin, organizer, secretary or member (a portal administrator is its administrator too). */
+    public function meetingRole(): string
+    {
+        return $this->is_admin ? 'admin' : ($this->meeting_role ?: 'member');
+    }
+
+    /** TFC Protocol: admin, protocol, head, secretary or employee (a portal administrator is its administrator too). */
+    public function protocolRole(): string
+    {
+        return $this->is_admin ? 'admin' : ($this->protocol_role ?: 'employee');
     }
 
     /** Daily Report: tied to a station, or an administrator who may report for any station. */

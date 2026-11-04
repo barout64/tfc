@@ -1,0 +1,27 @@
+/* Printable minutes / agenda document */
+body { margin: 0; background: #eef0f4; font-family: Georgia, "Times New Roman", serif; color: #111; font-size: 15px; line-height: 1.55; }
+.toolbar { font-family: "Segoe UI", system-ui, sans-serif; display: flex; gap: 14px; align-items: center; justify-content: center; padding: 12px; background: #141c2e; }
+.toolbar button { background: #2952cc; color: #fff; border: 0; border-radius: 6px; padding: 8px 16px; font: inherit; cursor: pointer; }
+.toolbar a { color: #fff; }
+.doc { background: #fff; max-width: 820px; margin: 24px auto; padding: 48px 56px; box-shadow: 0 2px 12px rgba(0, 0, 0, .1); }
+header { border-bottom: 2px solid #111; padding-bottom: 14px; margin-bottom: 18px; }
+.org { text-transform: uppercase; letter-spacing: .12em; font-size: .85rem; color: #444; text-align: center; }
+h1 { text-align: center; font-size: 1.45rem; margin: 6px 0 16px; }
+h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin: 22px 0 10px; }
+.meta { border-collapse: collapse; margin: 0 auto; }
+.meta th { text-align: right; padding: 2px 14px 2px 0; color: #444; font-weight: normal; }
+.meta td { padding: 2px 0; }
+.grid { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.grid th, .grid td { border: 1px solid #bbb; padding: 6px 8px; text-align: left; }
+.grid th { background: #f2f2f2; }
+.prewrap { white-space: pre-wrap; }
+.signatures { display: flex; gap: 60px; margin-top: 60px; }
+.signatures > div { flex: 1; }
+.signatures .line { border-bottom: 1px solid #111; height: 40px; margin-bottom: 6px; }
+@media (max-width: 700px) { .doc { padding: 24px 18px; margin: 0; } .signatures { flex-direction: column; gap: 24px; } }
+@media print {
+  body { background: #fff; }
+  .toolbar { display: none; }
+  .doc { box-shadow: none; margin: 0; max-width: none; padding: 0; }
+  @page { margin: 2cm; }
+}

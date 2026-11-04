@@ -42,6 +42,8 @@
                 @endphp
                 <a href="{{ route('duty.index') }}" class="flex items-center gap-1.5 rounded-lg px-3 py-2 hover:bg-brand-800 {{ request()->routeIs('duty.*') ? 'bg-brand-800' : '' }}">Uwajibikaji/Tasks
                     @if ($dutyWaiting)<span class="rounded-full bg-harvest-400 px-1.5 text-xs font-bold text-brand-950">{{ $dutyWaiting }}</span>@endif</a>
+                <a href="{{ route('meetings.dashboard') }}" class="rounded-lg px-3 py-2 hover:bg-brand-800">Meetings</a>
+                <a href="{{ route('protocol.index') }}" class="rounded-lg px-3 py-2 hover:bg-brand-800">Protocol</a>
                 @can('reports')
                     @php
                         // Admin: how many stations have not reported today; a station's own person: whether today is still missing

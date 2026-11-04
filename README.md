@@ -1,58 +1,44 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# TFC System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+The one system of the Tanzania Fertilizer Company: one Laravel application, one database and one sign-in. Everything below is in this repository; no other system or repository is needed to run it.
 
-## About Laravel
+| Part | Address | What it does | Main code |
+|---|---|---|---|
+| Portal | `/` | Sign-in, home page, people and stations | `PortalController`, `AuthController`, `Admin/*` |
+| Helpdesk | `/helpdesk` | Ask for help; support staff fix it | `HelpdeskController` |
+| Uwajibikaji / Tasks | `/uwajibikaji` | Tasks with deadlines, warnings for missed ones | `DutyController` |
+| Daily Report | `/reports` | Each station's daily sales report | `DailyReportController` |
+| Meetings | `/meetings` | Meetings and series, agenda, attendance, minutes, decisions, action items, calendar, year planner, rooms, groups | `MeetingController`, `MeetingSpaceController`, `Services/Meetings`, `Support/MeetingUi` |
+| Protocol | `/protocol` | Approved letter templates, documents with reference numbers, Word and print, the handbook | `ProtocolController`, `Services/ProtocolLetter` |
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Set up
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Requires PHP 8.3+ with the `zip` and `pdo_sqlite` extensions, Composer, and Node.js to build the styles.
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate
+npm install && npm run build
+php artisan tfc:admin you@example.com   # creates the first administrator
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Run the tests with `php artisan test`. They use an in-memory database.
 
-## Contributing
+## How it fits together
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **People.** There is one `users` table. A person's department, job title, `meeting_role` and `protocol_role` are set under People & access. A portal administrator (`is_admin`) is the administrator of Meetings and Protocol too.
+- **Departments.** There is one `departments` table, shared by Meetings and Protocol. Its `code` goes into Protocol's letter references.
+- **Meetings** uses the `meeting_*` tables. Times are Tanzania local text (`YYYY-MM-DD HH:MM`). Its pages are Blade views in `resources/views/meetings`, with their own layout and the styles and script in `public/meeting-app`.
+- **Protocol** has a browser app in `public/protocol-app` that talks to the JSON routes under `/protocol/api`. A template, a document or a handbook rule is one JSON record in its table, in the shape the app uses. Inside those records, person and department ids are text.
+- **Letters.** `public/protocol-app/render.js` draws a letter on screen and for printing; `Services/ProtocolLetter` writes the Word file. They share the letterhead layout, so change them together.
+- **Files** are kept on the `local` disk: `storage/app/private/meetings` and `storage/app/private/protocol`. Keep the public folders `meeting-app` and `protocol-app` named differently from the addresses `/meetings` and `/protocol`, or nginx will answer with the folder.
 
-## Code of Conduct
+## Bringing in the old separate systems
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Meetings and Protocol used to run as separate applications. `php artisan tfc:import-old-systems` copies their data into this system once and only reads from them. Add `--fresh` to replace what was copied with a new copy. New installations do not need it.
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+An earlier Kilimo merge, since removed, left unused tables on the live database. This code does not use them.

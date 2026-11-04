@@ -20,7 +20,7 @@
             <thead class="bg-slate-50 text-xs font-semibold tracking-wide text-slate-500 uppercase">
                 <tr>
                     <th class="px-4 py-3">Person</th>
-                    @foreach ($systems as $s)<th class="px-4 py-3">{{ $s['name'] }}</th>@endforeach
+                    <th class="px-4 py-3">Department</th>
                     <th class="px-4 py-3">Last sign-in</th>
                     <th class="px-4 py-3"></th>
                 </tr>
@@ -36,18 +36,12 @@
                             </p>
                             <p class="text-xs text-slate-500">{{ $u->email }}</p>
                         </td>
-                        @foreach ($systems as $key => $s)
-                            @php($link = $u->linkTo($key))
-                            <td class="px-4 py-3">
-                                @if ($link)<span class="inline-flex items-center gap-1.5 text-brand-700"><span class="size-1.5 rounded-full bg-brand-500"></span>{{ $link->remote_name }}</span>
-                                @else<span class="text-slate-300">—</span>@endif
-                            </td>
-                        @endforeach
+                        <td class="px-4 py-3 text-slate-600">{{ $u->departmentName() ?? '—' }}</td>
                         <td class="px-4 py-3 text-xs text-slate-500">{{ $u->last_login_at?->timezone('Africa/Dar_es_Salaam')->format('d M Y H:i') ?? 'Never' }}</td>
                         <td class="px-4 py-3 text-right"><a href="{{ route('admin.users.edit', $u) }}" class="font-semibold text-brand-700 hover:underline">Edit</a></td>
                     </tr>
                 @empty
-                    <tr><td colspan="{{ count($systems) + 3 }}" class="px-4 py-10 text-center text-slate-500">No one found.</td></tr>
+                    <tr><td colspan="4" class="px-4 py-10 text-center text-slate-500">No one found.</td></tr>
                 @endforelse
             </tbody>
         </table>

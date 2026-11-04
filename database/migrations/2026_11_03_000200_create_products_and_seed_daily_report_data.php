@@ -19,6 +19,7 @@ return new class extends Migration
                 $table->id();
                 $table->string('name', 120)->unique();
                 $table->string('code', 20)->nullable();
+                $table->string('category', 60)->nullable();   // required by the older copy of this table on live
                 $table->unsignedSmallInteger('package_kg')->nullable();
                 $table->boolean('is_active')->default(true);
                 $table->timestamps();

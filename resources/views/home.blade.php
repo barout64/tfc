@@ -37,16 +37,22 @@
                 'alert' => $reports['admin'] ? $reports['missing_today'] > 0 : ! $reports['reported_today'],
             ];
         }
-        foreach ($systems as $s) {
-            $cards[] = [
-                'id' => $s['id'], 'name' => $s['name'], 'open' => (bool) $s['link'],
-                'icon' => ['meeting' => 'M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm3 10h2m4 0h2m-8 4h2', 'protocol' => 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm0 0v6h6M8 13h8M8 17h5'][$s['id']] ?? 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm0 0v6h6M8 13h8M8 17h5',
-                'text' => $s['about'],
-                'url' => $s['link'] ? route('open', $s['id']) : null,
-                'stat' => $s['link'] ? null : 'No access',
-                'alert' => false,
-            ];
-        }
+        $cards[] = [
+            'id' => 'meeting', 'name' => 'TFC Meetings', 'open' => true,
+            'icon' => 'M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm3 10h2m4 0h2m-8 4h2',
+            'text' => 'Plan meetings, send agendas and invitations, keep minutes, decisions and follow-up actions.',
+            'url' => route('meetings.dashboard'),
+            'stat' => $meetings['today'].' today · '.$meetings['tasks'].' action item(s)',
+            'alert' => false,
+        ];
+        $cards[] = [
+            'id' => 'protocol', 'name' => 'TFC Protocol', 'open' => true,
+            'icon' => 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h8',
+            'text' => "Official letters and correspondence, written from each department's approved templates.",
+            'url' => route('protocol.index'),
+            'stat' => $protocol_unread ? $protocol_unread.' new notification(s)' : null,
+            'alert' => false,
+        ];
     @endphp
 
     <div class="mb-8">

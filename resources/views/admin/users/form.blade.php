@@ -53,46 +53,40 @@
             </section>
 
             <section class="card p-6">
-                <h2 class="font-semibold text-slate-900">Systems this person may open</h2>
-                <p class="mt-1 text-sm text-slate-500">Given to everyone automatically, or chosen for them - never both.</p>
-
-                @php($autoSystems = collect($systems)->diffKeys($assignedSystems))
-                @if ($autoSystems->isNotEmpty())
-                    <div class="mt-5 rounded-lg bg-brand-50 px-4 py-3 text-sm text-brand-900">
-                        <p class="font-medium">Everyone who can sign in already has:</p>
-                        <p class="mt-1 text-brand-800">{{ $autoSystems->pluck('name')->implode(', ') }}</p>
-                        <p class="mt-1 text-xs text-brand-700">An account is created there for them automatically (no password of their own - they always arrive signed in from here).</p>
+                <h2 class="font-semibold text-slate-900">Department and roles</h2>
+                <p class="mt-1 text-sm text-slate-500">Everyone who can sign in uses every part of the TFC system; these say what they do there. An administrator is administrator everywhere.</p>
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="label" for="department_id">Department</label>
+                        <select class="field" id="department_id" name="department_id">
+                            <option value="">No department</option>
+                            @foreach ($departments as $d)
+                                <option value="{{ $d->id }}" @selected((string) old('department_id', $user->department_id) === (string) $d->id)>{{ $d->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('department_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
-                @endif
-
-                <div class="mt-5 space-y-5">
-                    @foreach ($assignedSystems as $key => $s)
-                        @php([$people, $error] = $lists[$key])
-                        @php($current = old("links.$key", $user->exists ? $user->linkTo($key)?->remote_id : ''))
-                        <div class="grid gap-2 sm:grid-cols-3 sm:items-center">
-                            <div>
-                                <p class="font-medium text-slate-800">{{ $s['name'] }}</p>
-                                <p class="text-xs text-slate-400">{{ parse_url($s['url'], PHP_URL_HOST) }} · assigned, not automatic</p>
-                            </div>
-                            <div class="sm:col-span-2">
-                                <select name="links[{{ $key }}]" class="field">
-                                    <option value="">No access</option>
-                                    @if ($error && $current)
-                                        <option value="{{ $current }}" selected>{{ $user->linkTo($key)?->remote_name ?? $current }} (current)</option>
-                                    @endif
-                                    @foreach ($people as $p)
-                                        <option value="{{ $p['id'] }}" @selected((string) $current === $p['id'])>{{ $p['name'] }} — {{ $p['login'] }}{{ $p['role'] ? ' · '.$p['role'] : '' }}{{ $p['active'] ? '' : ' (switched off there)' }}</option>
-                                    @endforeach
-                                </select>
-                                @if ($error)<p class="mt-1 text-xs text-amber-700">{{ $error }}</p>@endif
-                                @error("links.$key")<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-                    @endforeach
+                    <div>
+                        <label class="label" for="job_title">Job title</label>
+                        <input class="field" id="job_title" name="job_title" value="{{ old('job_title', $user->job_title) }}">
+                    </div>
+                    <div>
+                        <label class="label" for="meeting_role">Meetings role</label>
+                        <select class="field" id="meeting_role" name="meeting_role">
+                            @foreach (\App\Support\MeetingUi::ROLES as $key => $label)
+                                <option value="{{ $key }}" @selected(old('meeting_role', $user->meeting_role ?? 'member') === $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label" for="protocol_role">Protocol role</label>
+                        <select class="field" id="protocol_role" name="protocol_role">
+                            @foreach (['employee' => 'Employee', 'secretary' => 'Department secretary', 'head' => 'Department head', 'protocol' => 'Protocol officer', 'admin' => 'System administrator'] as $key => $label)
+                                <option value="{{ $key }}" @selected(old('protocol_role', $user->protocol_role ?? 'employee') === $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-                @if ($assignedSystems->isNotEmpty())
-                    <p class="mt-5 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">Someone without an account in {{ $assignedSystems->pluck('name')->implode(' or ') }} yet: create it there first (as that system's administrator), then choose it here.</p>
-                @endif
             </section>
 
             <div class="flex justify-end gap-2">

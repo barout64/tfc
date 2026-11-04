@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\Department;
 use App\Models\Station;
 use App\Models\User;
-use App\Services\Systems;
+use App\Support\MeetingUi;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,22 +15,18 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Throwable;
 
-/** The TFC administrator: people, their portal login, and which account they use in each system. */
+/** The TFC administrator: people, their sign-in, and what they do in Meetings, Protocol and Daily Report. */
 class UserController extends Controller
 {
-    public function __construct(private Systems $systems) {}
-
     public function index(Request $request): View
     {
         $q = trim((string) $request->query('q'));
 
         return view('admin.users.index', [
-            'users' => User::query()->with('links')
+            'users' => User::query()
                 ->when($q !== '', fn ($w) => $w->where(fn ($w) => $w->where('name', 'like', "%{$q}%")->orWhere('email', 'like', "%{$q}%")))
                 ->orderByDesc('is_active')->orderBy('name')->paginate(30)->withQueryString(),
-            'systems' => $this->systems->all(),
             'q' => $q,
         ]);
     }
@@ -50,7 +47,7 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
-        return $this->form($user->load('links'));
+        return $this->form($user);
     }
 
     public function update(Request $request, User $user): RedirectResponse
@@ -63,14 +60,9 @@ class UserController extends Controller
 
     private function form(User $user): View
     {
-        // Only systems an administrator assigns by hand need a picker; the rest are automatic.
-        $assigned = collect($this->systems->all())->reject(fn ($s, $key) => $this->systems->defaultAccess($key));
-
         return view('admin.users.form', [
             'user' => $user,
-            'systems' => $this->systems->all(),
-            'assignedSystems' => $assigned,
-            'lists' => $assigned->map(fn ($s, $key) => $this->systems->usersOrError($key)),
+            'departments' => Department::query()->orderBy('name')->get(),
             'stations' => Station::query()->where('is_active', true)->orderBy('name')->get(),
         ]);
     }
@@ -85,8 +77,10 @@ class UserController extends Controller
             'is_active' => ['boolean'],
             'is_support' => ['boolean'],
             'station_id' => ['nullable', 'integer', Rule::exists('stations', 'id')],
-            'links' => ['array'],
-            'links.*' => ['nullable', 'string', 'max:100'],
+            'department_id' => ['nullable', 'integer', Rule::exists('departments', 'id')],
+            'job_title' => ['nullable', 'string', 'max:120'],
+            'meeting_role' => ['nullable', Rule::in(array_keys(MeetingUi::ROLES))],
+            'protocol_role' => ['nullable', Rule::in(['admin', 'protocol', 'head', 'secretary', 'employee'])],
         ]);
 
         // The administrator cannot lock themself out
@@ -94,34 +88,7 @@ class UserController extends Controller
             throw ValidationException::withMessages(['is_admin' => 'You cannot remove your own administrator access or switch yourself off.']);
         }
 
-        // Each chosen account must exist in that system (an unreadable list keeps what was there). Systems
-        // with default_access are not in this picker at all - every active person gets those automatically.
-        $links = [];
-        foreach ($this->systems->all() as $key => $s) {
-            if ($this->systems->defaultAccess($key)) {
-                continue;
-            }
-            $chosen = (string) ($data['links'][$key] ?? '');
-            if ($chosen === '') {
-                continue;
-            }
-            [$people, $error] = $this->systems->usersOrError($key);
-            if ($error) {
-                $old = $user->exists ? $user->links()->where('system', $key)->first() : null;
-                if ($old && $old->remote_id === $chosen) {
-                    $links[$key] = [$chosen, $old->remote_name];
-
-                    continue;
-                }
-                throw ValidationException::withMessages(["links.{$key}" => $error]);
-            }
-            if (! $people->has($chosen)) {
-                throw ValidationException::withMessages(["links.{$key}" => "That account is not in {$s['name']}."]);
-            }
-            $links[$key] = [$chosen, $people[$chosen]['name']];
-        }
-
-        DB::transaction(function () use ($user, $data, $request, $links) {
+        DB::transaction(function () use ($user, $data, $request) {
             $user->fill([
                 'name' => $data['name'],
                 'email' => strtolower($data['email']),
@@ -129,41 +96,15 @@ class UserController extends Controller
                 'is_active' => $request->boolean('is_active'),
                 'is_support' => $request->boolean('is_support'),
                 'station_id' => $data['station_id'] ?? null,
+                'department_id' => $data['department_id'] ?? null,
+                'job_title' => $data['job_title'] ?? null,
+                'meeting_role' => $data['meeting_role'] ?? $user->meeting_role ?? 'member',
+                'protocol_role' => $data['protocol_role'] ?? $user->protocol_role ?? 'employee',
             ]);
             if (filled($data['password'] ?? null)) {
                 $user->password = $data['password'];
             }
             $user->save();
-
-            // Assigned systems: exactly what the administrator chose just now.
-            foreach ($this->systems->all() as $key => $s) {
-                if ($this->systems->defaultAccess($key)) {
-                    continue;
-                }
-                if (array_key_exists($key, $links)) {
-                    [$id, $name] = $links[$key];
-                    $user->links()->updateOrCreate(['system' => $key], ['remote_id' => $id, 'remote_name' => $name]);
-                } else {
-                    $user->links()->where('system', $key)->delete();
-                }
-            }
-
-            // Default-access systems: give them an account there the first time, if they don't have one yet.
-            if ($user->is_active) {
-                foreach ($this->systems->all() as $key => $s) {
-                    if (! $this->systems->defaultAccess($key) || $user->links()->where('system', $key)->exists()) {
-                        continue;
-                    }
-                    try {
-                        $remoteId = $this->systems->provision($key, $user->name, $user->email);
-                        $user->links()->updateOrCreate(['system' => $key], ['remote_id' => $remoteId, 'remote_name' => $user->name]);
-                    } catch (Throwable $e) {
-                        // Don't block saving this person over one system being briefly unreachable -
-                        // they'll be given access automatically next time they're saved.
-                        report($e);
-                    }
-                }
-            }
 
             // Switched off: signed out of the portal everywhere
             if (! $user->is_active) {

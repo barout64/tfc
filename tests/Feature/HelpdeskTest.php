@@ -24,7 +24,7 @@ class HelpdeskTest extends TestCase
         $admin = User::factory()->create(['is_admin' => true]);
 
         // Everyone sees the Helpdesk on the Systems page
-        $this->actingAs($amina)->get(route('home'))->assertOk()->assertSee('TFC Helpdesk')->assertSee(route('helpdesk.create'), false);
+        $this->actingAs($amina)->get(route('home'))->assertOk()->assertSee('Helpdesk')->assertSee(route('helpdesk.index'), false);
 
         // Amina asks, with a photo of the error
         $this->actingAs($amina)->get(route('helpdesk.create'))->assertOk()->assertSee('Printer or scanner');

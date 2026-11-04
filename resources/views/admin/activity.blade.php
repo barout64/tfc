@@ -22,7 +22,7 @@
                         <td class="px-4 py-3 font-medium text-slate-800">{{ $a->user?->name ?? '—' }}</td>
                         <td class="px-4 py-3">
                             {{ $labels[$a->action] ?? $a->action }}
-                            @if ($a->system)<span class="font-semibold text-brand-700">{{ $systems->name($a->system) }}</span>@endif
+                            @if ($a->system)<span class="font-semibold text-brand-700">{{ ['meeting' => 'TFC Meetings', 'protocol' => 'TFC Protocol'][$a->system] ?? $a->system }}</span>@endif
                             @if ($a->detail)<span class="text-slate-500">{{ $a->system ? '(as '.$a->detail.')' : $a->detail }}</span>@endif
                         </td>
                         <td class="px-4 py-3 text-xs text-slate-400">{{ $a->ip_address }}</td>
