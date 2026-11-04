@@ -27,3 +27,7 @@ Homestead.yaml
 Thumbs.db
 /database/*.sqlite
 /database/*.sqlite-journal
+
+CLAUDE.md
+AGENTS.md
+.claude/
