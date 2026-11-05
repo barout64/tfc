@@ -12,7 +12,7 @@
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="label" for="report_date">Date</label>
-                    <input class="field" id="report_date" name="report_date" type="date" value="{{ old('report_date', $date) }}" max="{{ now()->toDateString() }}" required>
+                    <input class="field" id="report_date" name="report_date" type="date" value="{{ old('report_date', $date) }}" min="{{ $earliestDate }}" max="{{ now()->toDateString() }}" required>
                     @error('report_date')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>

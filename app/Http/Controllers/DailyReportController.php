@@ -19,6 +19,9 @@ use Illuminate\View\View;
  */
 class DailyReportController extends Controller
 {
+    /** Reports can be written for any day from this one on, so the days since then can be filled in. */
+    private const EARLIEST_DATE = '2026-10-01';
+
     public function index(Request $request): View
     {
         $me = $request->user();
@@ -69,6 +72,7 @@ class DailyReportController extends Controller
             'products' => Product::query()->where('is_active', true)->orderBy('name')->get(),
             'station' => $me->is_admin ? null : $me->station,
             'date' => $date,
+            'earliestDate' => self::EARLIEST_DATE,
             'existing' => $existing,
             'existingLines' => $existing ? $existing->lines->map(fn ($l) => [
                 'product' => $l->product,
@@ -88,7 +92,7 @@ class DailyReportController extends Controller
             'station_id' => $me->is_admin
                 ? ['required', 'integer', Rule::exists('stations', 'id')]
                 : ['prohibited'],
-            'report_date' => ['required', 'date', 'before_or_equal:today', 'after_or_equal:'.now()->subDays(14)->toDateString()],
+            'report_date' => ['required', 'date', 'before_or_equal:today', 'after_or_equal:'.self::EARLIEST_DATE],
             'notes' => ['nullable', 'string', 'max:2000'],
             'lines' => ['required', 'array', 'min:1'],
             'lines.*.product' => ['required', 'string', 'max:60'],
