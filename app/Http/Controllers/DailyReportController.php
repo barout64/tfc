@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\DailyReport;
+use App\Models\DailyReportLine;
 use App\Models\Product;
 use App\Models\Station;
 use Illuminate\Http\RedirectResponse;
@@ -75,6 +76,7 @@ class DailyReportController extends Controller
             'earliestDate' => self::EARLIEST_DATE,
             'existing' => $existing,
             'existingLines' => $existing ? $existing->lines->map(fn ($l) => [
+                'buyer' => $l->buyer,
                 'product' => $l->product,
                 'unit' => $l->unit,
                 'quantity' => (float) $l->quantity,
@@ -95,6 +97,7 @@ class DailyReportController extends Controller
             'report_date' => ['required', 'date', 'before_or_equal:today', 'after_or_equal:'.self::EARLIEST_DATE],
             'notes' => ['nullable', 'string', 'max:2000'],
             'lines' => ['required', 'array', 'min:1'],
+            'lines.*.buyer' => ['nullable', Rule::in(array_keys(DailyReportLine::BUYERS))],
             'lines.*.product' => ['required', 'string', 'max:60'],
             'lines.*.unit' => ['required', 'string', 'max:20'],
             'lines.*.quantity' => ['required', 'numeric', 'min:0'],
@@ -115,6 +118,7 @@ class DailyReportController extends Controller
             $report->lines()->delete();
             foreach ($data['lines'] as $i => $line) {
                 $report->lines()->create([
+                    'buyer' => $line['buyer'] ?? null,
                     'product' => $line['product'],
                     'unit' => $line['unit'],
                     'quantity' => $line['quantity'],

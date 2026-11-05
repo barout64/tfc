@@ -36,26 +36,32 @@
             @endif
 
             <div>
-                <div class="flex items-center justify-between">
-                    <label class="label">What was sold</label>
-                    <button type="button" id="add-row" class="text-sm font-semibold text-brand-700 hover:underline">+ Add product</button>
-                </div>
-
-                <div class="mt-2 overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="text-xs font-semibold tracking-wide text-slate-500 uppercase">
-                            <tr>
-                                <th class="w-2/5 pb-2">Product</th>
-                                <th class="pb-2">Unit</th>
-                                <th class="pb-2">Quantity</th>
-                                <th class="pb-2">Unit price (TZS)</th>
-                                <th class="pb-2">Amount (TZS)</th>
-                                <th class="pb-2"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="lines"></tbody>
-                    </table>
-                </div>
+                <label class="label">What was sold</label>
+                @foreach (\App\Models\DailyReportLine::BUYERS + ['' => 'Buyer not recorded (older report)'] as $buyer => $label)
+                    <div class="mt-3 rounded-lg p-3 ring-1 ring-slate-200" data-buyer-section data-buyer="{{ $buyer }}" @if ($buyer === '') hidden @endif>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-semibold text-slate-800">{{ $label }}</p>
+                            @if ($buyer !== '')<button type="button" class="add-row text-sm font-semibold text-brand-700 hover:underline">+ Add product</button>@endif
+                        </div>
+                        <div class="mt-2 overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead class="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                                    <tr>
+                                        <th class="w-2/5 pb-2">Product</th>
+                                        <th class="pb-2">Unit</th>
+                                        <th class="pb-2">Quantity</th>
+                                        <th class="pb-2">Unit price (TZS)</th>
+                                        <th class="pb-2">Amount (TZS)</th>
+                                        <th class="pb-2"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="lines"></tbody>
+                            </table>
+                        </div>
+                        <p class="mt-2 text-right text-sm text-slate-600">Subtotal: <span class="subtotal">0</span></p>
+                    </div>
+                @endforeach
+                @if ($errors->has('lines') || $errors->has('lines.*'))<p class="mt-2 text-sm text-red-600">Check the lines: each one needs a product, a quantity and an amount.</p>@endif
                 <p id="lines-error" class="mt-1 hidden text-sm text-red-600">Add at least one product.</p>
 
                 <p class="mt-3 flex justify-end gap-2 text-sm font-semibold text-slate-700">Total: <span id="total">0</span></p>
@@ -76,7 +82,10 @@
 
     <script>
         (function () {
-            const body = document.getElementById('lines');
+            const sections = [...document.querySelectorAll('[data-buyer-section]')];
+            const sectionFor = (buyer) => sections.find(s => s.dataset.buyer === (buyer ?? '')) ?? sections[0];
+            const allRows = () => document.querySelectorAll('.lines tr');
+            let next = 0;
             const existing = @json(old('lines') ?: $existingLines);
             const products = @json($products->pluck('name'));
 
@@ -84,9 +93,11 @@
                 return (Math.round(n * 100) / 100).toLocaleString('en-US', { maximumFractionDigits: 2 });
             }
 
-            function addRow(data) {
+            function addRow(data, section) {
                 data = data || {};
-                const i = body.children.length;
+                section.hidden = false;
+                const body = section.querySelector('.lines');
+                const i = next++;
                 const tr = document.createElement('tr');
                 const known = data.product && products.includes(data.product);
                 tr.innerHTML = `
@@ -97,6 +108,7 @@
                             <option value="__other__" ${data.product && !known ? 'selected' : ''}>Other…</option>
                         </select>
                         <input class="field product-other mt-1 ${data.product && !known ? '' : 'hidden'}" placeholder="Product name" maxlength="60" value="${!known ? (data.product ?? '') : ''}">
+                        <input type="hidden" name="lines[${i}][buyer]" value="${section.dataset.buyer}">
                         <input type="hidden" class="product-value" name="lines[${i}][product]" value="${data.product ?? ''}">
                     </td>
                     <td class="py-1 pr-2">
@@ -104,9 +116,9 @@
                             ${['Bags', 'Tonnes', 'Kg', 'Litres', 'Pieces'].map(u => `<option ${u === (data.unit ?? 'Bags') ? 'selected' : ''}>${u}</option>`).join('')}
                         </select>
                     </td>
-                    <td class="py-1 pr-2"><input class="field qty" type="number" step="0.01" min="0" name="lines[${i}][quantity]" required value="${data.quantity ?? ''}"></td>
+                    <td class="py-1 pr-2"><input class="field qty" type="number" step="0.01" min="0" name="lines[${i}][quantity]" value="${data.quantity ?? ''}"></td>
                     <td class="py-1 pr-2"><input class="field price" type="number" step="0.01" min="0" name="lines[${i}][unit_price]" value="${data.unit_price ?? ''}"></td>
-                    <td class="py-1 pr-2"><input class="field amount" type="number" step="0.01" min="0" name="lines[${i}][amount]" required value="${data.amount ?? ''}"></td>
+                    <td class="py-1 pr-2"><input class="field amount" type="number" step="0.01" min="0" name="lines[${i}][amount]" value="${data.amount ?? ''}"></td>
                     <td class="py-1"><button type="button" class="text-slate-400 hover:text-red-600" title="Remove">✕</button></td>
                 `;
                 body.appendChild(tr);
@@ -137,22 +149,31 @@
 
             function updateTotal() {
                 let total = 0;
-                body.querySelectorAll('.amount').forEach(a => total += parseFloat(a.value || 0));
+                sections.forEach(s => {
+                    let sub = 0;
+                    s.querySelectorAll('.amount').forEach(a => sub += parseFloat(a.value || 0));
+                    s.querySelector('.subtotal').textContent = fmt(sub);
+                    total += sub;
+                });
                 document.getElementById('total').textContent = fmt(total);
             }
 
-            document.getElementById('add-row').addEventListener('click', () => addRow());
+            sections.forEach(s => s.querySelector('.add-row')?.addEventListener('click', () => addRow({}, s)));
 
-            if (existing.length) {
-                existing.forEach(addRow);
-            } else {
-                addRow();
-            }
+            existing.forEach(line => addRow(line, sectionFor(line.buyer)));
+            // Each buyer starts with an empty line to fill in
+            sections.filter(s => s.dataset.buyer !== '' && !s.querySelector('.lines tr')).forEach(s => addRow({}, s));
             updateTotal();
 
-            document.querySelector('form').addEventListener('submit', (e) => {
-                if (!body.children.length) {
+            sections[0].closest('form').addEventListener('submit', (e) => {
+                // A buyer with no sales that day stays empty: its empty lines are not sent
+                allRows().forEach(tr => {
+                    const empty = [...tr.querySelectorAll('.product-value, .qty, .price, .amount')].every(x => x.value === '');
+                    if (empty) tr.remove();
+                });
+                if (!allRows().length) {
                     e.preventDefault();
+                    sections.filter(s => s.dataset.buyer !== '').forEach(s => addRow({}, s));
                     document.getElementById('lines-error').classList.remove('hidden');
                 }
             });

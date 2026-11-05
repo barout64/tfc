@@ -8,7 +8,10 @@
             <h1 class="mt-1 text-2xl font-bold text-slate-900">Taarifa ya Mauzo ya Kila Siku</h1>
             <p class="mt-1 text-sm text-slate-500">{{ $me->is_admin ? 'What every station sold, day by day.' : 'What your station sold, day by day.' }}</p>
         </div>
-        <a href="{{ route('reports.create') }}" class="btn-primary">+ Submit today's report</a>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('reports.stock') }}" class="btn-light">Monthly stock</a>
+            <a href="{{ route('reports.create') }}" class="btn-primary">+ Submit today's report</a>
+        </div>
     </div>
 
     <div class="mb-5 grid grid-cols-2 gap-3 {{ $me->is_admin ? 'md:grid-cols-3' : '' }}">
@@ -83,7 +86,7 @@
                             <span class="w-28 text-sm font-semibold text-slate-700">{{ $report->report_date->format('d M Y') }}</span>
                             <span class="min-w-0 flex-1">
                                 <span class="block font-medium text-slate-900">{{ $report->station->name }}</span>
-                                <span class="block text-xs text-slate-500">{{ $report->lines->count() }} product(s) · submitted by {{ $report->submitter?->name ?? '—' }}</span>
+                                <span class="block text-xs text-slate-500">Agro dealers {{ number_format($report->lines->where('buyer', 'agro_dealer')->sum('amount'), 0) }} · Farmers {{ number_format($report->lines->where('buyer', 'farmer')->sum('amount'), 0) }} · submitted by {{ $report->submitter?->name ?? '—' }}</span>
                             </span>
                             <span class="font-semibold text-slate-900">{{ number_format($report->totalAmount(), 0) }} TZS</span>
                         </a>

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\StationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DailyReportController;
+use App\Http\Controllers\StationStockController;
 use App\Http\Controllers\DutyController;
 use App\Http\Controllers\HelpdeskController;
 use App\Http\Controllers\MeetingController;
@@ -67,6 +68,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DailyReportController::class, 'index'])->name('index');
         Route::get('/new', [DailyReportController::class, 'create'])->name('create');
         Route::post('/', [DailyReportController::class, 'store'])->middleware('throttle:30,1')->name('store');
+        Route::get('/stock', [StationStockController::class, 'index'])->name('stock');
+        Route::post('/stock', [StationStockController::class, 'store'])->middleware('throttle:30,1')->name('stock.store');
         Route::get('/{dailyReport}', [DailyReportController::class, 'show'])->name('show');
     });
 

@@ -25,16 +25,20 @@
                         <th class="px-4 py-3 text-right">Amount (TZS)</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @foreach ($report->lines as $line)
-                        <tr>
-                            <td class="px-4 py-3 font-medium text-slate-900">{{ $line->product }}</td>
-                            <td class="px-4 py-3 text-slate-600">{{ rtrim(rtrim(number_format($line->quantity, 2), '0'), '.') }} {{ $line->unit }}</td>
-                            <td class="px-4 py-3 text-slate-600">{{ $line->unit_price !== null ? number_format($line->unit_price, 0) : '—' }}</td>
-                            <td class="px-4 py-3 text-right font-medium text-slate-900">{{ number_format($line->amount, 0) }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
+                @foreach ($report->lines->groupBy(fn ($l) => $l->buyer ?? '') as $buyer => $lines)
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="bg-slate-50/60"><td class="px-4 py-2 font-semibold text-slate-800" colspan="3">{{ \App\Models\DailyReportLine::BUYERS[$buyer] ?? 'Buyer not recorded' }}</td>
+                            <td class="px-4 py-2 text-right font-semibold text-slate-800">{{ number_format($lines->sum('amount'), 0) }}</td></tr>
+                        @foreach ($lines as $line)
+                            <tr>
+                                <td class="px-4 py-3 font-medium text-slate-900">{{ $line->product }}</td>
+                                <td class="px-4 py-3 text-slate-600">{{ rtrim(rtrim(number_format($line->quantity, 2), '0'), '.') }} {{ $line->unit }}</td>
+                                <td class="px-4 py-3 text-slate-600">{{ $line->unit_price !== null ? number_format($line->unit_price, 0) : '—' }}</td>
+                                <td class="px-4 py-3 text-right font-medium text-slate-900">{{ number_format($line->amount, 0) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                @endforeach
                 <tfoot>
                     <tr class="bg-slate-50 font-semibold text-slate-900">
                         <td class="px-4 py-3" colspan="3">Total</td>
